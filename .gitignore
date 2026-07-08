@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# Model AI
+backend/models/model.safetensors
+
+# Temporary files
+backend/temp_files/
+
+# Virtual Environment
+venv/
+.env
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
