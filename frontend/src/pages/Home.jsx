@@ -43,16 +43,11 @@ const Home = () => {
       >
         {/* Decorative graphic matching wireframe */}
         <div className="relative w-64 h-64">
-           <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-             <circle cx="100" cy="100" r="90" fill="none" stroke="#E0F2FE" strokeWidth="8"/>
-             <path d="M60 140 Q100 100 140 140" fill="none" stroke="#2563EB" strokeWidth="4" strokeLinecap="round"/>
-             <path d="M60 60 Q100 100 140 60" fill="none" stroke="#2563EB" strokeWidth="4" strokeLinecap="round"/>
-             <path d="M40 100 Q100 80 160 100" fill="none" stroke="#06B6D4" strokeWidth="4" strokeLinecap="round"/>
-             <path d="M40 100 Q100 120 160 100" fill="none" stroke="#06B6D4" strokeWidth="4" strokeLinecap="round"/>
-             <circle cx="100" cy="100" r="10" fill="#22C55E"/>
-             <path d="M80 50 Q100 30 120 50" fill="none" stroke="#22C55E" strokeWidth="6" strokeLinecap="round"/>
-             <path d="M80 150 Q100 170 120 150" fill="none" stroke="#22C55E" strokeWidth="6" strokeLinecap="round"/>
-           </svg>
+          <img
+            src="/Logo.png"
+            alt="Logo"
+            className="absolute inset-0 w-full h-full object-contain"
+          />
         </div>
       </motion.div>
     </div>
