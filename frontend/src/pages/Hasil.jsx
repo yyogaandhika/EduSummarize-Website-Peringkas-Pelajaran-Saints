@@ -1,7 +1,7 @@
-import { useLocation, useNavigate } from 'react-router-dom';
-import { FiArrowRight, FiCopy, FiDownload } from 'react-icons/fi';
-import { motion } from 'framer-motion';
-import { downloadFile } from '../services/api';
+import { useLocation, useNavigate } from "react-router-dom";
+import { FiArrowRight, FiCopy, FiDownload } from "react-icons/fi";
+import { motion } from "framer-motion";
+import { downloadFile } from "../services/api";
 
 const Hasil = () => {
   const location = useLocation();
@@ -10,10 +10,16 @@ const Hasil = () => {
 
   if (!result) {
     return (
-      <div className="flex flex-col items-center justify-center h-full pt-20">
-        <p className="text-gray-500 mb-4">Belum ada hasil ringkasan.</p>
-        <button onClick={() => navigate('/ringkasan')} className="text-primary font-medium hover:underline">
-          Kembali ke halaman input
+      <div className="flex flex-col items-center justify-center min-h-[70vh]">
+        <p className="text-gray-500 mb-4 text-lg">
+          Belum ada hasil ringkasan.
+        </p>
+
+        <button
+          onClick={() => navigate("/ringkasan")}
+          className="px-6 py-3 rounded-xl bg-primary text-white hover:bg-blue-700 transition"
+        >
+          Kembali ke Halaman Ringkasan
         </button>
       </div>
     );
@@ -21,80 +27,210 @@ const Hasil = () => {
 
   const handleCopy = () => {
     navigator.clipboard.writeText(result.summary);
-    // You could add a toast notification here
+    alert("Ringkasan berhasil disalin.");
   };
 
   return (
-    <motion.div 
-      initial={{ opacity: 0, y: 10 }}
+    <motion.div
+      initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
-      className="max-w-6xl pt-8"
+      transition={{ duration: 0.35 }}
+      className="max-w-7xl mx-auto px-6 py-8"
     >
-      <h1 className="text-3xl font-bold text-gray-800 mb-6">Hasil Ringkasan</h1>
+      {/* Title */}
+      <h1 className="text-4xl font-bold text-gray-800 mb-3">
+        Hasil Ringkasan
+      </h1>
 
-      <div className="flex flex-col lg:flex-row gap-6 mb-8">
-        {/* Original Text Column */}
-        <div className="flex-1 bg-white rounded-2xl border border-gray-100 shadow-sm flex flex-col">
-          <div className="p-4 border-b border-gray-100 bg-gray-50 rounded-t-2xl">
-            <h3 className="font-semibold text-gray-700">Materi Asli</h3>
+      <p className="text-gray-500 mb-8">
+        Berikut perbandingan materi asli dengan hasil ringkasan.
+      </p>
+
+      {/* Statistik */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        <div className="bg-white rounded-2xl shadow border p-5">
+          <p className="text-sm text-gray-500">Jumlah Kata Awal</p>
+          <h2 className="text-2xl font-bold text-gray-800">
+            {result.word_before}
+          </h2>
+        </div>
+
+        <div className="bg-white rounded-2xl shadow border p-5">
+          <p className="text-sm text-gray-500">Jumlah Kata Ringkasan</p>
+          <h2 className="text-2xl font-bold text-primary">
+            {result.word_after}
+          </h2>
+        </div>
+
+        <div className="bg-white rounded-2xl shadow border p-5">
+          <p className="text-sm text-gray-500">Waktu Proses</p>
+          <h2 className="text-2xl font-bold text-green-600">
+            {result.processing_time} detik
+          </h2>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto_1fr] gap-6 items-center">
+
+        {/* Materi Asli */}
+        <div className="bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden">
+
+          <div className="bg-gray-50 border-b px-6 py-5">
+            <h3 className="text-lg font-semibold text-gray-800">
+              📄 Materi Asli
+            </h3>
           </div>
+
           <textarea
             readOnly
-            className="flex-1 w-full h-80 p-6 text-gray-600 bg-transparent resize-none outline-none leading-relaxed text-sm"
             value={result.original_text}
-          ></textarea>
-          <div className="p-4 border-t border-gray-100 text-xs text-gray-400 bg-gray-50 rounded-b-2xl">
-            Jumlah Kata: {result.word_before} kata
+            className="
+              w-full
+              h-[430px]
+              resize-none
+              bg-white
+              p-6
+              outline-none
+              leading-7
+              text-gray-700
+              text-sm
+              overflow-y-auto
+            "
+          />
+
+          <div className="bg-gray-50 border-t px-6 py-4 flex justify-between text-sm text-gray-500">
+            <span>Jumlah Kata</span>
+            <span>{result.word_before} kata</span>
           </div>
         </div>
 
-        <div className="flex items-center justify-center lg:px-2">
-          <FiArrowRight className="text-3xl text-primary transform rotate-90 lg:rotate-0" />
+        {/* Arrow */}
+        <div className="flex justify-center">
+          <div className="w-14 h-14 rounded-full bg-white shadow-lg border flex items-center justify-center">
+            <FiArrowRight className="text-3xl text-primary rotate-90 lg:rotate-0" />
+          </div>
         </div>
 
-        {/* Summary Column */}
-        <div className="flex-1 bg-blue-50/50 rounded-2xl border border-blue-100 shadow-sm flex flex-col relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-1 h-full bg-primary"></div>
-          <div className="p-4 border-b border-blue-100 bg-blue-50/80 rounded-t-2xl pl-6">
-            <h3 className="font-semibold text-primary">Hasil Ringkasan</h3>
+        {/* Ringkasan */}
+        <div className="bg-white rounded-3xl shadow-lg border border-blue-100 overflow-hidden relative">
+
+          <div className="absolute left-0 top-0 h-full w-1 bg-primary"></div>
+
+          <div className="bg-blue-50 border-b border-blue-100 px-6 py-5 pl-8">
+            <h3 className="text-lg font-semibold text-primary">
+              ✨ Hasil Ringkasan
+            </h3>
           </div>
+
           <textarea
             readOnly
-            className="flex-1 w-full h-80 p-6 pl-6 text-gray-700 bg-transparent resize-none outline-none leading-relaxed text-sm"
             value={result.summary}
-          ></textarea>
-          <div className="p-4 border-t border-blue-100 text-xs text-primary bg-blue-50/80 rounded-b-2xl pl-6 flex justify-between">
-            <span>Jumlah Kata: {result.word_after} kata</span>
-            <span>Waktu: {result.processing_time} detik</span>
+            className="
+              w-full
+              h-[430px]
+              resize-none
+              bg-white
+              p-6
+              pl-8
+              outline-none
+              leading-7
+              text-gray-700
+              text-sm
+              overflow-y-auto
+            "
+          />
+
+          <div className="bg-blue-50 border-t border-blue-100 px-6 py-4 pl-8 flex justify-between text-sm text-primary">
+            <span>{result.word_after} kata</span>
+            <span>{result.processing_time} detik</span>
           </div>
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-4 justify-end">
-        <button 
-          onClick={() => navigate('/ringkasan')}
-          className="px-6 py-2 border border-gray-200 text-gray-600 font-medium rounded-lg hover:bg-gray-50 transition-colors"
+      {/* Tombol */}
+      <div className="flex flex-wrap justify-center gap-4 mt-10">
+
+        <button
+          onClick={() => navigate("/ringkasan")}
+          className="
+            h-12
+            px-7
+            rounded-xl
+            border
+            border-gray-300
+            bg-white
+            hover:bg-gray-50
+            transition
+            font-medium
+          "
         >
           Ringkas Lagi
         </button>
-        <button 
+
+        <button
           onClick={handleCopy}
-          className="flex items-center gap-2 px-6 py-2 border border-primary text-primary font-medium rounded-lg hover:bg-blue-50 transition-colors"
+          className="
+            h-12
+            px-7
+            rounded-xl
+            border
+            border-primary
+            text-primary
+            hover:bg-blue-50
+            transition
+            flex
+            items-center
+            gap-2
+            font-medium
+          "
         >
-          <FiCopy /> Copy Summary
+          <FiCopy />
+          Copy Summary
         </button>
-        <button 
-          onClick={() => downloadFile(result.summary, 'txt')}
-          className="flex items-center gap-2 px-6 py-2 border border-gray-200 text-gray-600 font-medium rounded-lg hover:bg-gray-50 transition-colors"
+
+        <button
+          onClick={() => downloadFile(result.summary, "txt")}
+          className="
+            h-12
+            px-7
+            rounded-xl
+            border
+            border-gray-300
+            bg-white
+            hover:bg-gray-50
+            transition
+            flex
+            items-center
+            gap-2
+            font-medium
+          "
         >
-          <FiDownload /> Download TXT
+          <FiDownload />
+          Download TXT
         </button>
-        <button 
-          onClick={() => downloadFile(result.summary, 'docx')}
-          className="flex items-center gap-2 px-6 py-2 bg-primary text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
+
+        <button
+          onClick={() => downloadFile(result.summary, "docx")}
+          className="
+            h-12
+            px-7
+            rounded-xl
+            bg-primary
+            text-white
+            hover:bg-blue-700
+            transition
+            flex
+            items-center
+            gap-2
+            font-medium
+            shadow-md
+          "
         >
-          <FiDownload /> Download DOCX
+          <FiDownload />
+          Download DOCX
         </button>
+
       </div>
     </motion.div>
   );

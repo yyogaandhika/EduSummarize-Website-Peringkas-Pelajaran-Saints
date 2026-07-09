@@ -58,12 +58,6 @@ const Sidebar = () => {
         </NavLink>
       </nav>
 
-      <div className="mt-auto">
-        <button className="flex items-center gap-3 px-4 py-3 text-gray-600 hover:text-red-500 transition-colors w-full text-left">
-          <FiLogOut className="text-lg" />
-          Keluar
-        </button>
-      </div>
     </div>
   );
 };
