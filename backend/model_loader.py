@@ -61,7 +61,12 @@ def _summarize_with_gemini(text: str, max_length: int = 150) -> str:
         "Content-Type": "application/json"
     }
 
-    # 1. Otomatis deteksi model aktif yang tersedia untuk API key ini
+    def _is_text_model(name: str) -> bool:
+        name_lower = name.lower()
+        excluded = ["tts", "audio", "embed", "imagen", "transcription", "realtime", "search"]
+        return not any(ex in name_lower for ex in excluded)
+
+    # 1. Otomatis deteksi model teks aktif yang tersedia untuk API key ini
     target_models = []
     for api_version in ["v1beta", "v1"]:
         try:
@@ -72,12 +77,16 @@ def _summarize_with_gemini(text: str, max_length: int = 150) -> str:
                 flash_models = [
                     (api_version, m["name"].replace("models/", ""))
                     for m in data
-                    if "generateContent" in m.get("supportedGenerationMethods", []) and "flash" in m.get("name", "").lower()
+                    if "generateContent" in m.get("supportedGenerationMethods", []) 
+                    and _is_text_model(m.get("name", ""))
+                    and "flash" in m.get("name", "").lower()
                 ]
                 other_models = [
                     (api_version, m["name"].replace("models/", ""))
                     for m in data
-                    if "generateContent" in m.get("supportedGenerationMethods", []) and "flash" not in m.get("name", "").lower()
+                    if "generateContent" in m.get("supportedGenerationMethods", [])
+                    and _is_text_model(m.get("name", ""))
+                    and "flash" not in m.get("name", "").lower()
                 ]
                 target_models.extend(flash_models + other_models)
                 if target_models:
@@ -85,7 +94,7 @@ def _summarize_with_gemini(text: str, max_length: int = 150) -> str:
         except Exception:
             pass
 
-    # 2. Jika ListModels belum mengembalikan hasil, gunakan daftar fallback
+    # 2. Jika ListModels belum mengembalikan hasil, gunakan daftar fallback teks
     if not target_models:
         fallback_names = [
             "gemini-2.5-flash",
@@ -111,13 +120,14 @@ def _summarize_with_gemini(text: str, max_length: int = 150) -> str:
             if response.status_code == 200:
                 res_json = response.json()
                 return res_json["candidates"][0]["content"]["parts"][0]["text"].strip()
-            elif response.status_code != 404:
-                raise Exception(f"Gemini API Error ({response.status_code}): {response.text}")
+            elif response.status_code == 403:
+                raise Exception(f"Gemini API Error (403): {response.text}")
             else:
                 last_error = response.text
         except Exception as e:
-            if "404" not in str(e):
+            if "403" in str(e):
                 raise e
+            last_error = str(e)
 
     raise Exception(f"Gemini API Error: {last_error}")
 
