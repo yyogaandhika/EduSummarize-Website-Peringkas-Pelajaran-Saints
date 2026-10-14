@@ -36,7 +36,6 @@ def is_model_loaded():
 
 def _summarize_with_gemini(text: str, max_length: int = 150) -> str:
     api_key = os.getenv("GEMINI_API_KEY")
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
     
     prompt = (
         "Kamu adalah asisten AI EduSummarize khusus materi pelajaran sains (Fisika, Biologi, Kimia, dll).\n"
@@ -55,16 +54,47 @@ def _summarize_with_gemini(text: str, max_length: int = 150) -> str:
         }
     }
     
-    response = requests.post(url, json=payload, timeout=30)
-    if response.status_code != 200:
-        raise Exception(f"Gemini API Error ({response.status_code}): {response.text}")
-        
-    data = response.json()
+    # Model Gemini aktif yang didukung
+    models_to_try = [
+        "gemini-2.5-flash",
+        "gemini-2.0-flash",
+        "gemini-1.5-flash-latest",
+        "gemini-pro"
+    ]
+    
+    last_error = ""
+    for model_name in models_to_try:
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={api_key}"
+        try:
+            response = requests.post(url, json=payload, timeout=30)
+            if response.status_code == 200:
+                data = response.json()
+                return data["candidates"][0]["content"]["parts"][0]["text"].strip()
+            elif response.status_code != 404:
+                raise Exception(f"Gemini API Error ({response.status_code}): {response.text}")
+            else:
+                last_error = response.text
+        except Exception as e:
+            if "404" not in str(e):
+                raise e
+
+    # Fallback dinamis: tanyakan model apa saja yang aktif untuk API key ini
     try:
-        summary = data["candidates"][0]["content"]["parts"][0]["text"].strip()
-        return summary
-    except Exception as e:
-        raise Exception(f"Gagal memproses respons Gemini: {str(e)}")
+        list_url = f"https://generativelanguage.googleapis.com/v1beta/models?key={api_key}"
+        list_res = requests.get(list_url, timeout=10)
+        if list_res.status_code == 200:
+            models_data = list_res.json().get("models", [])
+            for m in models_data:
+                if "generateContent" in m.get("supportedGenerationMethods", []):
+                    m_name = m["name"].replace("models/", "")
+                    url = f"https://generativelanguage.googleapis.com/v1beta/models/{m_name}:generateContent?key={api_key}"
+                    res = requests.post(url, json=payload, timeout=30)
+                    if res.status_code == 200:
+                        return res.json()["candidates"][0]["content"]["parts"][0]["text"].strip()
+    except Exception:
+        pass
+
+    raise Exception(f"Gemini API Error: {last_error}")
 
 def _summarize_with_groq(text: str, max_length: int = 150) -> str:
     api_key = os.getenv("GROQ_API_KEY")
