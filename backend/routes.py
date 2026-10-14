@@ -9,10 +9,12 @@ from model_loader import generate_summary, is_model_loaded
 from pdf_reader import extract_text_from_pdf
 from doc_generator import generate_txt, generate_docx
 
+import tempfile
+
 router = APIRouter()
 
-# Temporary directory for saving generated files
-TEMP_DIR = "temp_files"
+# Temporary directory for saving generated files (compatible with Vercel and local)
+TEMP_DIR = os.path.join(tempfile.gettempdir(), "edusummarize_temp")
 os.makedirs(TEMP_DIR, exist_ok=True)
 
 @router.get("/health")

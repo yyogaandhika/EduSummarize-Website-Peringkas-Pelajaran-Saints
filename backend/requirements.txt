@@ -1,8 +1,7 @@
 fastapi
 uvicorn
-transformers
-torch
+python-multipart
 PyMuPDF
 python-docx
-python-multipart
-sentencepiece
+requests
+python-dotenv

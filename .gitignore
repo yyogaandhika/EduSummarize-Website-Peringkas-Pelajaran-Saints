@@ -3,7 +3,7 @@ __pycache__/
 *.py[cod]
 
 # Model AI
-backend/models/model.safetensors
+backend/models/
 
 # Temporary files
 backend/temp_files/

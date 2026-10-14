@@ -8,23 +8,23 @@ app = FastAPI(title="EduSummarize AI API", version="1.0.0")
 # Setup CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, specify the exact frontend domain
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Initialize model
 @app.on_event("startup")
 async def startup_event():
-    print("Loading model on startup...")
+    load_model()
 
-    success = load_model()
-
-    if success:
-        print("✅ Model loaded successfully.")
-    else:
-        print("❌ Failed to load model.")
+@app.get("/")
+def root():
+    return {
+        "status": "online",
+        "message": "EduSummarize AI Backend API is running!",
+        "docs": "/docs"
+    }
 
 app.include_router(router, prefix="/api")
 
