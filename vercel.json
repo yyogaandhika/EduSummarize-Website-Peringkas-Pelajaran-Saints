@@ -1,6 +1,14 @@
 {
   "buildCommand": "cd frontend && npm install && npm run build",
   "outputDirectory": "frontend/dist",
+  "functions": {
+    "api/*.py": {
+      "excludeFiles": "{frontend/**,backend/models/**,backend/__pycache__/**,node_modules/**,**/__pycache__/**}"
+    },
+    "api/**/*.py": {
+      "excludeFiles": "{frontend/**,backend/models/**,backend/__pycache__/**,node_modules/**,**/__pycache__/**}"
+    }
+  },
   "rewrites": [
     {
       "source": "/api/(.*)",
