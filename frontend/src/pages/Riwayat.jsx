@@ -1,91 +1,73 @@
-import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 
 const Riwayat = () => {
   const [history, setHistory] = useState([]);
+  const [loadError, setLoadError] = useState(false);
 
   useEffect(() => {
-    const data =
-      JSON.parse(localStorage.getItem("summary_history")) || [];
-
-    setHistory(data);
+    try {
+      setHistory(JSON.parse(localStorage.getItem('summary_history') || '[]'));
+    } catch {
+      setLoadError(true);
+    }
   }, []);
 
   const hapusRiwayat = () => {
-    localStorage.removeItem("summary_history");
+    localStorage.removeItem('summary_history');
     setHistory([]);
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="w-full max-w-5xl mx-auto px-8 py-8"
-    >
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">
-          Riwayat Ringkasan
-        </h1>
+    <div className="page-shell">
+      <header className="page-head">
+        <p className="eyebrow">Kumpulan catatan</p>
+        <h1 className="page-title">Riwayat ringkasan.</h1>
+        <p className="lede">Setiap ringkasan yang kamu buat tersimpan di penyimpanan lokal browser ini, hanya di perangkat ini.</p>
+      </header>
 
-        {history.length > 0 && (
-          <button
-            onClick={hapusRiwayat}
-            className="px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600"
-          >
-            Hapus Semua
-          </button>
-        )}
-      </div>
-
-      {history.length === 0 ? (
-        <div className="bg-white rounded-2xl p-10 text-center shadow">
-          <p className="text-gray-500">
-            Belum ada riwayat ringkasan.
-          </p>
-        </div>
+      {loadError ? (
+        <section className="empty-state" role="alert">
+          <h2>Riwayat tidak dapat dibaca.</h2>
+          <p>Data penyimpanan mungkin rusak. Hapus data riwayat lalu buat ringkasan baru.</p>
+          <button className="secondary-button" onClick={hapusRiwayat}>Hapus data riwayat</button>
+        </section>
+      ) : history.length === 0 ? (
+        <section className="empty-state">
+          <p className="eyebrow">Belum ada catatan</p>
+          <h2>Ringkasanmu akan tersimpan di sini.</h2>
+          <p>Mulai dari halaman Ringkas, lalu riwayat akan terisi otomatis setelah ringkasan pertama selesai.</p>
+          <Link className="primary-button" to="/ringkasan">Buat ringkasan pertama</Link>
+        </section>
       ) : (
-        <div className="space-y-6">
-          {history.map((item) => (
-            <div
-              key={item.id}
-              className="bg-white rounded-2xl shadow border border-gray-100"
-            >
-              <div className="p-6 border-b">
-                <p className="text-xs text-gray-500 mb-2">
-                  {item.date}
-                </p>
-
-                <h2 className="font-semibold text-lg mb-3">
-                  Materi Asli
-                </h2>
-
-                <p className="text-gray-600 line-clamp-4">
-                  {item.original_text}
-                </p>
-              </div>
-
-              <div className="p-6 bg-blue-50">
-                <h2 className="font-semibold text-blue-600 mb-3">
-                  Hasil Ringkasan
-                </h2>
-
-                <p>{item.summary}</p>
-
-                <div className="flex justify-between mt-5 text-sm text-gray-500">
-                  <span>
-                    {item.word_before} → {item.word_after} kata
-                  </span>
-
-                  <span>
-                    {item.processing_time} detik
-                  </span>
+        <>
+          <div className="history-bar">
+            <span>{history.length} ringkasan tersimpan di perangkat ini</span>
+            <button className="secondary-button" onClick={hapusRiwayat}>Hapus semua riwayat</button>
+          </div>
+          <ol className="history-list">
+            {history.map((item, idx) => (
+              <li className="history-item" key={item.id}>
+                <div className="history-side">
+                  <span className="history-date">{String(history.length - idx).padStart(2, '0')}</span>
+                  <span>{item.date}</span>
+                  <span className="history-stat">{item.word_before} → {item.word_after} kata</span>
+                  <span className="history-stat">{item.processing_time} detik</span>
                 </div>
-              </div>
-            </div>
-          ))}
-        </div>
+                <article className="history-main">
+                  <h2>Ringkasan</h2>
+                  <p className="history-summary">{item.summary}</p>
+                  <details className="history-source">
+                    <summary>Lihat materi asli</summary>
+                    {item.original_text}
+                  </details>
+                </article>
+              </li>
+            ))}
+          </ol>
+        </>
       )}
-    </motion.div>
+    </div>
   );
 };
 

@@ -1,15 +1,12 @@
-import Sidebar from './Sidebar';
 import { Outlet } from 'react-router-dom';
+import Sidebar from './Sidebar';
 
-const Layout = () => {
-  return (
-    <div className="flex min-h-screen bg-background">
-      <Sidebar />
-      <div className="flex-1 ml-64 p-8">
-        <Outlet />
-      </div>
-    </div>
-  );
-};
+const Layout = () => (
+  <div className="app-layout">
+    <a className="skip-link" href="#main-content">Lewati ke konten</a>
+    <Sidebar />
+    <main id="main-content" className="main-content"><Outlet /></main>
+  </div>
+);
 
 export default Layout;
